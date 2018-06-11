@@ -1,5 +1,5 @@
 # transportation-data-utils (tdutils)
-Utilities for managing and publishing transportation data.
+Python utilities for managing and publishing transportation data.
 
 ## Installation
 ```
