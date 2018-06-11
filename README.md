@@ -1,5 +1,12 @@
-# transportation-data-utils
-Try not to repeat yourself.
+# transportation-data-utils (tdutils)
+Utilities for managing and publishing transportation data.
 
-# About
-This package contains varous utilities for managing and publishing transportation data. It is maintained by the City of Austin Transportation Department.
+## Installation
+```
+$ pip install tdutils
+```
+## License
+
+As a work of the City of Austin, this project is in the public domain within the United States.
+
+Additionally, we waive copyright and related rights of the work worldwide through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/).
