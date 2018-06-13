@@ -10,7 +10,6 @@ class Postgrest(object):
     """
     Class to interact with PostgREST.
     """
-
     def __init__(self, base_url, auth=None):
 
         self.auth = auth
@@ -41,10 +40,6 @@ class Postgrest(object):
     def delete(self, query_string, data=None):
         url = f"{self.base_url}?{query_string}"
         return self._query("DELETE", url)
-
-    def end(res):
-        res.raise_for_status()
-        return res.json()
 
     def _query(self, method, url, data=None, limit=None):
         """

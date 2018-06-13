@@ -6,7 +6,7 @@ in order to handle some common ETL routines, particularly with Knack integration
 """
 import requests
 
-import datautil
+from .datautil import mills_to_unix, iso_to_unix, lower_case_keys
 
 
 class Soda(object):
@@ -67,11 +67,11 @@ class Soda(object):
     def _handle_records(self):
         if self.date_fields:
             if self.source == "knack":
-                self.records = datautil.mills_to_unix(self.records, self.date_fields)
+                self.records = mills_to_unix(self.records, self.date_fields)
             elif self.source == "postgrest":
-                self.records = datautil.iso_to_unix(self.records, self.date_fields)
+                self.records = iso_to_unix(self.records, self.date_fields)
 
-        self.records = datautil.lower_case_keys(self.records)
+        self.records = lower_case_keys(self.records)
 
         if self.location_field:
             self.records = self._location_fields()
