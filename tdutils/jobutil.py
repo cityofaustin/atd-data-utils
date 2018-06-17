@@ -56,9 +56,9 @@ class Job(object):
         res = self._query("SELECT", url)
 
         try:
-            return arrow.get(res[0][self.end_date_field]).timestamp
+            return arrow.get(res[0][self.start_date_field]).timestamp
 
-        except IndexError:
+        except (IndexError, KeyError) as e:
             return None
 
     def start(self):
