@@ -2,25 +2,7 @@
 Utility to create an argparser with predefined arguments. 
 https://docs.python.org/3/library/argparse.html#module-argparse
 """
-import argparse
-from ._arguments import *
-
-def get_parser(prog, description, *args):
-    """
-    Return a parser with the specified arguments. Each arg
-    in *args must be defined in ARGUMENTS.
-    """
-    parser = argparse.ArgumentParser(prog=prog, description=description)
-
-    for arg_name in args:
-        arg_def = ARGUMENTS[arg_name]
-
-        if arg_def.get("flag"):
-            parser.add_argument(arg_name, arg_def.pop("flag"), **arg_def)
-        else:
-            parser.add_argument(arg_name, **arg_def)
-
-    return parser
+from tdutils import argutil
 
 
 if __name__ == "__main__":
@@ -28,7 +10,7 @@ if __name__ == "__main__":
     name = "fake_program.py"
     description = "Fake program which does nothing useful."
 
-    parser = get_parser(
+    parser = argutil.get_parser(
         name,
         description,
         "dataset",
