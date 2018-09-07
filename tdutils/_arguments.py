@@ -7,7 +7,7 @@ ARGUMENTS = {
     "device_type": {
         "action": "store",
         "type": str,
-        "choices": ["signals", "travel_sensors", "cameras", "gridsmart"],
+        "choices": ["signals", "travel_sensors", "cameras", "gridsmart", "detectors"],
         "help": "Type of device to ping.",
     },
     "eval_type": {
