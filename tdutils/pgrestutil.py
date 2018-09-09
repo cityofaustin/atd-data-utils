@@ -1,91 +1,114 @@
 """
 Helper methods to work with PostgREST.
 """
-import pdb
-
+from copy import deepcopy
 import requests
-
+import pdb
 
 class Postgrest(object):
     """
     Class to interact with PostgREST.
     """
-    def __init__(self, base_url, auth=None):
+    def __init__(self, url, auth=None):
 
         self.auth = auth
-        self.base_url = base_url
+        self.url = url
 
-        headers = {
-            "Content-Type": "text/csv",
+        self.headers = {
+            "Content-Type": "application/json",
             "Prefer": "return=representation",  # return entire record json in response
         }
 
         if self.auth:
-            headers["Authorization"] = f"Bearer {self.auth}"
+            self.headers["Authorization"] = f"Bearer {self.auth}"
 
-    def select(self, query_string, limit=None):
-        url = f"{self.base_url}?{query_string}"
-        return self._query("SELECT", url, limit=limit)
 
     def insert(self, data=None):
-        res = requests.post(self.base_url, headers=headers, json=data)
+        res = requests.post(self.url, headers=self.headers, json=data)
+        res.raise_for_status()
+        return res.json()
+
 
     def update(self, query_string, data=None):
-        url = f"{self.base_url}?{query_string}"
-        res = requests.patch(url, headers=headers, json=data)
-
-    def upsert(self, data=None):
-        return self._query("UPSERT", self.base_url, data=data)
-
-    def delete(self, query_string, data=None):
-        url = f"{self.base_url}?{query_string}"
-        return self._query("DELETE", url)
-
-    def _query(self, method, url, data=None, limit=None):
         """
         This method is dangerous! It is possible to delete and modify records
         en masse. Read the PostgREST docs.
         """
-        headers = {
-            "Content-Type": "text/csv",
-            "Prefer": "return=representation",  # return entire record json in response
-        }
-
-        if method.upper() == "INSERT":
-            res = requests.post(url, headers=headers, json=data)
-
-        elif method.upper() == "UPDATE":
-            res = requests.patch(url, headers=headers, json=data)
-
-        elif method.upper() == "UPSERT":
-            headers["Prefer"] += ", resolution=merge-duplicates"
-            res = requests.patch(url, headers=headers, json=data)
-
-        elif method.upper() == "DELETE":
-            res = requests.delete(url, headers=headers)
-
-        elif method.upper() == "SELECT":
-            """Offset pagination for SELECT requests"""
-            records = []
-
-            while True:
-                query_url = f"{url}&offset={len(records)}"
-
-                res = requests.get(query_url, headers=headers)
-
-                res.raise_for_status()
-
-                if res.json():
-                    records += res.json()
-
-                    if limit:
-                        if len(records) >= limit:
-                            return records[0:limit]
-                else:
-                    return records
-
-        else:
-            raise Exception("Unknown method requested.")
-
+        url = f"{self.url}?{query_string}"
+        res = requests.patch(url, headers=self.headers, json=data)
         res.raise_for_status()
         return res.json()
+
+
+    def upsert(self, data=None):
+        """
+        This method is dangerous! It is possible to delete and modify records
+        en masse. Read the PostgREST docs.
+        """
+        headers = deepcopy(self.headers)
+        headers["Prefer"] += ", resolution=merge-duplicates"
+        pdb.set_trace()
+        res = requests.post(self.url, headers=headers, json=data)
+        res.raise_for_status()
+        return res.json()
+
+
+    def delete(self, query_string):
+        """
+        This method is dangerous! It is possible to delete and modify records
+        en masse. Read the PostgREST docs.
+        """
+        url = f"{self.url}?{query_string}"
+        res = requests.delete(url, headers=self.headers)
+        res.raise_for_status()
+        return res.json()
+
+
+    def select(self, query_string, increment=1000, limit=10000):
+        """Select records from PostgREST DB. See documentation for horizontal
+        and vertical filtering at http://postgrest.org/.
+        
+        Args:
+            query_string (string): a PostgREST-compliant query string.
+
+            increment (int, optional): The maximum number of records to
+                return request per request. This is applied as a "limit" to
+                each API request, until the user-specified limit is reached.
+                
+                Note that the PosgrREST DB itself will likely have limiting
+                configured that cannot be exceeded. For example, our
+                instances have a limit of 5000 records per request.
+
+            limit (int, optional): The maximum number of records to return
+                from the query. This method will continue to query records
+                until the limit is reached or no more records are returned.
+        
+        Returns:
+            TYPE: List 
+        """
+        url = f"{self.url}?{query_string}&limit={increment}"
+
+        records = []
+
+        while True:
+            query_url = f"{url}&offset={len(records)}"
+
+            res = requests.get(query_url, headers=self.headers)
+
+            res.raise_for_status()
+
+            records += res.json()
+
+            if len(res.json()) < increment or len(records) >= limit:
+                return records[0:limit]
+
+
+
+
+
+
+
+
+
+
+
