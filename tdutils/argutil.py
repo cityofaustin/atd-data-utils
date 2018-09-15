@@ -3,17 +3,27 @@ Utility to create an argparser with predefined arguments.
 https://docs.python.org/3/library/argparse.html#module-argparse
 """
 import argparse
-from ._arguments import *
+import yaml
 
-def get_parser(prog, description, *args):
+import pdb
+
+
+def get_arg_defs(path):
+    with open(path, "r") as fin:
+        return eval(fin.read())
+
+
+def get_parser(prog, description, config_path, *args):
     """
     Return a parser with the specified arguments. Each arg
-    in *args must be defined in ARGUMENTS.
+    in *args must be defined in arg_defsff.
     """
+    arg_defs = get_arg_defs(config_path)
+    
     parser = argparse.ArgumentParser(prog=prog, description=description)
 
     for arg_name in args:
-        arg_def = ARGUMENTS[arg_name]
+        arg_def = arg_defs[arg_name]
 
         if arg_def.get("flag"):
             parser.add_argument(arg_name, arg_def.pop("flag"), **arg_def)
@@ -31,6 +41,7 @@ if __name__ == "__main__":
     parser = get_parser(
         name,
         description,
+        '_arguments.py',
         "dataset",
         "device_type",
         "app_name",
@@ -55,6 +66,8 @@ if __name__ == "__main__":
             "1535997869"
         ])
     )
+
+    print("\nSuccess!\n")
 
 
 

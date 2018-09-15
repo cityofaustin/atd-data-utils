@@ -1,4 +1,5 @@
-ARGUMENTS = {
+# sample argument definition file
+{
     "dataset": {
         "action": "store",
         "type": str,
@@ -18,7 +19,7 @@ ARGUMENTS = {
     },
     "app_name": {
         "action": "store",
-        "choices": ["data_tracker_prod", "data_tracker_test", "visitor_sign_in_prod"],
+        "choices": ["data_tracker_prod", "data_tracker_test", "visitor_sign_in_prod", "finance_admin_prod", "finance_admin_test"],
         "type": str,
         "help": "Name of the knack application that will be accessed",
     },
