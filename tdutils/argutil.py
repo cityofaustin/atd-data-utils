@@ -2,71 +2,53 @@
 Utility to create an argparser with predefined arguments. 
 https://docs.python.org/3/library/argparse.html#module-argparse
 """
-import argparse
-import yaml
-
+from argparse import ArgumentParser
 import pdb
 
 
-def get_arg_defs(path):
-    with open(path, "r") as fin:
-        return eval(fin.read())
-
-
-def get_parser(prog, description, config_path, *args):
+class ArgParseConfig(ArgumentParser):
     """
-    Return a parser with the specified arguments. Each arg
-    in *args must be defined in arg_defsff.
+    Extends argparse.ArgumentParser to accept an argument configuration dict.
     """
-    arg_defs = get_arg_defs(config_path)
-    
-    parser = argparse.ArgumentParser(prog=prog, description=description)
+    def __init__(self, config: [dict], **kwargs):
+        super().__init__(**kwargs)
 
-    for arg_name in args:
-        arg_def = arg_defs[arg_name]
+        self.config = config
 
-        if arg_def.get("flag"):
-            parser.add_argument(arg_name, arg_def.pop("flag"), **arg_def)
-        else:
-            parser.add_argument(arg_name, **arg_def)
+    def config_args(self, *args):
+        for arg_name in args:
+            arg_def = self.config.get(arg_name)
 
-    return parser
+            if not arg_def:
+                raise Exception(f"Argument \"{arg_name}\"  not found in config.")
+
+
+            if arg_def.get("flag"):
+                self.add_argument(arg_name, arg_def.pop("flag"), **arg_def)
+            else:
+                self.add_argument(arg_name, **arg_def)
+
+        return self
+
 
 
 if __name__ == "__main__":
-    # tests
-    name = "fake_program.py"
-    description = "Fake program which does nothing useful."
+    NAME = "fake_program.py"
+   
+    DESCRIPTION = "Fake program which does nothing useful."
 
-    parser = get_parser(
-        name,
-        description,
-        '_arguments.py',
-        "dataset",
-        "device_type",
-        "app_name",
-        "eval_type",
-        "--destination",
-        "--replace",
-        "--json",
-        "--last_run_date"
-    )
-    
-    print(
-        parser.parse_args([
-            "cameras",
-            "gridsmart",
-            "data_tracker_prod",
-            "traffic_signal",
-            "-d",
-            "socrata",
-            "--replace",
-            "--json",
-            "--last_run_date",
-            "1535997869"
-        ])
-    )
+    ARG_CONFIG =  {
+        "dataset": {
+            "action": "store",
+            "type": str,
+            "help": "Name of the dataset that will be published. Must match entry in Knack config file.",
+        }
+    }
 
+    parser = ArgParseConfig(ARG_CONFIG, prog=NAME, description=DESCRIPTION)
+    parser.config_args("dataset")
+    parsed = parser.parse_args()
+    print(parsed)
     print("\nSuccess!\n")
 
 
