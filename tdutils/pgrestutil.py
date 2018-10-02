@@ -47,7 +47,6 @@ class Postgrest(object):
         """
         headers = deepcopy(self.headers)
         headers["Prefer"] += ", resolution=merge-duplicates"
-        pdb.set_trace()
         res = requests.post(self.url, headers=headers, json=data)
         res.raise_for_status()
         return res.json()
