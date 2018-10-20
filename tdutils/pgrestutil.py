@@ -21,12 +21,12 @@ class Postgrest(object):
 
         if self.auth:
             self.headers["Authorization"] = f"Bearer {self.auth}"
-
+        
 
     def insert(self, data=None):
-        res = requests.post(self.url, headers=self.headers, json=data)
-        res.raise_for_status()
-        return res.json()
+        self.res = requests.post(self.url, headers=self.headers, json=data)
+        self.res.raise_for_status()
+        return self.res.json()
 
 
     def update(self, query_string, data=None):
@@ -35,9 +35,9 @@ class Postgrest(object):
         en masse. Read the PostgREST docs.
         """
         url = f"{self.url}?{query_string}"
-        res = requests.patch(url, headers=self.headers, json=data)
-        res.raise_for_status()
-        return res.json()
+        self.res = requests.patch(url, headers=self.headers, json=data)
+        self.res.raise_for_status()
+        return self.res.json()
 
 
     def upsert(self, data=None):
@@ -47,9 +47,9 @@ class Postgrest(object):
         """
         headers = deepcopy(self.headers)
         headers["Prefer"] += ", resolution=merge-duplicates"
-        res = requests.post(self.url, headers=headers, json=data)
-        res.raise_for_status()
-        return res.json()
+        self.res = requests.post(self.url, headers=headers, json=data)
+        self.res.raise_for_status()
+        return self.res.json()
 
 
     def delete(self, query_string):
@@ -58,9 +58,9 @@ class Postgrest(object):
         en masse. Read the PostgREST docs.
         """
         url = f"{self.url}?{query_string}"
-        res = requests.delete(url, headers=self.headers)
-        res.raise_for_status()
-        return res.json()
+        self.res = requests.delete(url, headers=self.headers)
+        self.res.raise_for_status()
+        return self.res.json()
 
 
     def select(self, query_string, increment=1000, limit=10000):
@@ -85,6 +85,9 @@ class Postgrest(object):
         Returns:
             TYPE: List 
         """
+        if not query_string:
+            raise Exception("Query string cannot be empty.")
+
         url = f"{self.url}?{query_string}&limit={increment}"
 
         records = []
@@ -92,16 +95,14 @@ class Postgrest(object):
         while True:
             query_url = f"{url}&offset={len(records)}"
 
-            res = requests.get(query_url, headers=self.headers)
+            self.res = requests.get(query_url, headers=self.headers)
 
-            res.raise_for_status()
+            self.res.raise_for_status()
 
-            records += res.json()
+            records += self.res.json()
 
-            if len(res.json()) < increment or len(records) >= limit:
+            if len(self.res.json()) < increment or len(records) >= limit:
                 return records[0:limit]
-
-
 
 
 
