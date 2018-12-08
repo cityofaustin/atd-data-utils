@@ -22,6 +22,11 @@ ARGUMENTS = {
         "type": str,
         "help": "Name of the knack application that will be accessed",
     },
+    "provider_name": {
+        "action": "store",
+        "type": str,
+        "help": "Name of the mobiltiy provider.",
+    },    
     "--destination": {
         "flag": "-d",
         "action": "append",
@@ -47,4 +52,14 @@ ARGUMENTS = {
         "type": int,
         "help": "A unix timestamp representing the last date the job was run. Will be applied as a temporal filter when querying data for processing.",
     },
+    "--start": {
+            "action": "store",
+            "type": int,
+            "help": "A unix timestamp representing a start datetime.",
+        },
+    "--end": {
+            "action": "store",
+            "type": int,
+            "help": "A unix timestamp representing an end datetime.",
+        },
 }
