@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tdutils",
-    version="0.0.14",
+    version="0.0.15",
     author="City of Austin",
     author_email="transportation.data@austintexas.gov",
     description="Various utilities for managing and pulishing transportation data.",
