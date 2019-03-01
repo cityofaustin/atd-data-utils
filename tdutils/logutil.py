@@ -41,6 +41,8 @@ class _StreamToLogger(object):
             self.orig_stream.write(buf)
             
     def flush(self):
+        "Added in because errors were occurring during testing."
+        
         if self.orig_stream:
             self.orig_stream.flush()
             
