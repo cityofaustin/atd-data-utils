@@ -89,17 +89,35 @@ class Redirector:
         if levelStdErr:
             self.origStdErr = sys.stderr
             sys.stderr = _StreamToLogger(logger, levelStdErr, self.origStdErr if tee else None)
-        _redirector = True
+        self.key = object() # Unique identifier
+        _redirector = self.key
         
-    def __del__(self):
+    def stop(self):
         """
-        Called upon object destruction. Reverts back the system streams.
+        Ceases operation of the redirector, reverting back system streams. Also
+        releases the singleton status. Ignored if called more than once.
         """
         global _redirector
         
         if self.origStdErr:
             sys.stderr = self.origStdErr
+            self.origStdErr = None
         if self.origStdOut:
             sys.stdout = self.origStdOut
-        _redirector = False
+            self.origStdOut = None
+        if _redirector is self.key:
+            # Only clear this if this object owns the reference.
+            _redirector = None
+
+    def __enter__(self):
+        "Allows Redirector to be used in a 'with' block."
+        return self
     
+    def __exit__(self, type, value, traceback):
+        "Cleanup from the termination of a 'with' block."
+        self.stop()
+        
+    def __del__(self):
+        "Called upon object destruction. Reverts back the system streams."
+        self.stop()
+        
