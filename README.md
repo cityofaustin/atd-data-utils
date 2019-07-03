@@ -1,12 +1,1 @@
-# transportation-data-utils (tdutils)
-Python utilities for managing and publishing transportation data.
-
-## Installation
-```
-$ pip install tdutils
-```
-## License
-
-As a work of the City of Austin, this project is in the public domain within the United States.
-
-Additionally, we waive copyright and related rights of the work worldwide through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/).
+This package has been deprecated. Please use the new [atd-data-utilitites](https://github.com/cityofaustin/atd-data-utilities/blob/master/atd-socrata-util/socratautil/socratautil.py) pacakges.
